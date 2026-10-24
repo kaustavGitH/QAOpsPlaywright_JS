@@ -5,14 +5,8 @@ let authenticationToken;
 test.beforeAll(async()=>{
 
     const apiContext = await request.newContext();
-    const loginResponse = await apiContext.post("https://api.eventhub.rahulshettyacademy.com/api/auth/login",
-        {
-            data: loginPayload
-        }
-    );
-    expect(loginResponse.ok()).toBeTruthy();
-    const loginResponseJson = await loginResponse.json();
-    authenticationToken = await loginResponseJson.token;
+    const apiUtils = new ApiUtils(apiContext,loginPayload);
+    authenticationToken = await apiUtils.login();
 });
 
 test('@Smoke Verify logged in customer email is displayed', async({page})=>{
