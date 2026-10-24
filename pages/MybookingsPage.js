@@ -49,11 +49,12 @@ class MyBookingsPage{
                 await this.bookingCard.nth(i).getByTestId('cancel-booking-btn').click();
                 await expect(this.page.locator('#modal-title')).toBeVisible();
                 await this.page.getByTestId('confirm-dialog-yes').click();
+                break;
             }
         }
 
-        bookings = await this.bookingCard.count();
-        for(let i=0;i<await bookings;i++){
+        await expect(this.bookingCard.first()).toBeVisible();
+        for(let i=0;i<await bookings-1;i++){
            if(await this.bookingCard.nth(i).locator('.booking-ref').textContent() === bookingRef){
            }
         }
