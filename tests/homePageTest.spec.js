@@ -1,5 +1,6 @@
 const {PageManager} = require('../pages/PageManager');
 const {test, expect, request} = require('@playwright/test');
+const { ApiUtils } = require('../utils/ApiUtils');
 const loginPayload = {email:"steve.rogers102@outlook.com",password:"steveRogers1#"};
 let authenticationToken;
 test.beforeAll(async()=>{
