@@ -1,18 +1,13 @@
 const {PageManager} = require('../pages/PageManager');
 const {test, expect, request} = require('@playwright/test');
+const { ApiUtils } = require('../utils/ApiUtils');
 const loginPayload = {email:"steve.rogers102@outlook.com",password:"steveRogers1#"};
 let authenticationToken;
 test.beforeAll(async()=>{
 
     const apiContext = await request.newContext();
-    const loginResponse = await apiContext.post("https://api.eventhub.rahulshettyacademy.com/api/auth/login",
-        {
-            data: loginPayload
-        }
-    );
-    expect(loginResponse.ok()).toBeTruthy();
-    const loginResponseJson = await loginResponse.json();
-    authenticationToken = await loginResponseJson.token;
+    const apiUtils = new ApiUtils(apiContext,loginPayload);
+    authenticationToken = await apiUtils.login();
 });
 
 test('@Smoke Verify logged in customer email is displayed', async({page})=>{

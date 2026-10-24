@@ -1,20 +1,15 @@
 const { PageManager } = require('../pages/PageManager');
 const { test, expect, request } = require('@playwright/test');
+const { ApiUtils } = require('../utils/ApiUtils');
 const loginPayload = { email: "steve.rogers102@outlook.com", password: "steveRogers1#" };
 const bookingPayload = {customerName:"Steve Rogers",customerEmail:"steve.rogers102@outlook.com",customerPhone:"8451230698",quantity:1,eventId:51};
 let authenticationToken;
-let bookingId;
+
 test.beforeAll(async () => {
 
     const apiContext = await request.newContext();
-    const loginResponse = await apiContext.post("https://api.eventhub.rahulshettyacademy.com/api/auth/login",
-        {
-            data: loginPayload
-        }
-    );
-    expect(loginResponse.ok()).toBeTruthy();
-    const loginResponseJson = await loginResponse.json();
-    authenticationToken = await loginResponseJson.token;
+    const apiUtils = new ApiUtils(apiContext,loginPayload);
+    authenticationToken = await apiUtils.login();
 });
 
 test('@Smoke Book an event', async ({ page }) => {
@@ -270,18 +265,8 @@ test('Sandbox banner visibility with API mocking', async ({ page }) => {
 test('Cross-User Booking Access Denied', async ({ page }) => {
 
     const apiContext = await request.newContext();
-    const createBookingPayload = await apiContext.post("https://api.eventhub.rahulshettyacademy.com/api/bookings",
-        {
-            data: bookingPayload,
-            headers: {
-                'Authorization': 'Bearer ' + authenticationToken,
-                'Content-Type': 'application/json'
-            }
-        }
-    );
-    expect(createBookingPayload.ok()).toBeTruthy();
-    const createBookingPayloadJson = await createBookingPayload.json();
-    bookingId = createBookingPayloadJson.data.id;
+    const apiUtils = new ApiUtils(apiContext,loginPayload);
+    const response = await apiUtils.createOrder(bookingPayload);
 
     const email = "bruce.banner35@gmail.com";
     const password = "bruceBanner35@";
@@ -289,6 +274,6 @@ test('Cross-User Booking Access Denied', async ({ page }) => {
     await pageManager.loginPage.gotoLoginUrl("https://eventhub.rahulshettyacademy.com/login");
     await pageManager.loginPage.login(email, password);
     await page.waitForLoadState('networkidle');
-    await pageManager.bookingsPage.goToBookingUrl("https://eventhub.rahulshettyacademy.com/bookings/"+bookingId);
+    await pageManager.bookingsPage.goToBookingUrl("https://eventhub.rahulshettyacademy.com/bookings/"+response.bookingId);
     await expect(page.getByText("Access Denied")).toBeVisible();
 });
