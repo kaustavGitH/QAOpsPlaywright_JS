@@ -25,5 +25,10 @@ export default defineConfig(
       ["html", { open: "never" }],
       ["@azure/playwright/reporter"],
     ],
+
+    use:{
+      trace: 'on',
+      screenshot: 'on'
+    }
   }
 );
